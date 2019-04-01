@@ -1,0 +1,197 @@
+@startuml
+skinparam class {
+	BackgroundColor Azure
+	ArrowColor RoyalBlue
+	BorderColor DeepSkyBlue
+}
+hide empty members
+
+package expression {
+	interface IExpression {
+		accept(visitor:IVisitor):void
+    	getValue():double
+	}
+
+	class Expression implements IExpression {
+		-leftOperand:IExpression
+		-operator:IOperator
+		-rightOperand:IExpression
+		--
+		+accept(visitor:IVisitor):void
+		+getValue():double
+		..
+		+getLeftOperand():IExpression
+		+getRightOperand():IExpression
+		+getOperator():IOperator
+		+setLeftOperand(leftOperand:IExpression):void
+		+setRightOperand(rightOperand:IExpression):void
+		+setOperator(operator:IOperator):void
+	}
+
+	class LeafExpression implements IExpression {
+		-value:long
+		+accept(IVisitor visitor):void
+		+getValue():double
+		+addDigit(String digit):void
+	}
+
+	class Parser {
+		-dataTypes:HashMap<String, Class>
+		+getType(text:String):Type
+		+getOperator(operator:String):IOperator
+    }
+
+    enum Type {
+		DIGIT
+		OPERATOR
+		EQUALS
+		ACTION
+		CLEAR
+	}
+	Parser - Type
+
+
+	package actions {
+		package erroractions {
+			interface ErrorAction
+			class DiscardAction implements ErrorAction
+			class ResetAction implements ErrorAction
+		}
+		class Clear
+		class Equals
+	}
+	Parser -- ErrorAction
+	Parser -- Clear
+	Parser -- Equals
+	Parser -- IOperator
+
+	package operators {
+		interface IOperator {
+			calculate(left:IExpression, right:IExpression):double
+		}
+		class Addition implements IOperator {
+			calculate(left:IExpression, right:IExpression):double
+		}
+		class Subtraction implements IOperator {
+			calculate(left:IExpression, right:IExpression):double
+		}
+		class Multiplication implements IOperator {
+			calculate(left:IExpression, right:IExpression):double
+		}
+		class Division implements IOperator {
+			calculate(left:IExpression, right:IExpression):double
+		}
+	}
+
+	Expression --o IOperator
+	Expression --o IExpression
+
+
+	package visitors {
+		interface IVisitor {
+			visit(expression:Expression):void
+			visit(expression:LeafExpression):void
+		}
+		class PrintVisitor implements IVisitor {
+			visit(expression:Expression):void
+			visit(expression:LeafExpression):void
+		}
+		class FileOutputVisitor implements IVisitor {
+		    visit(expression:Expression):void
+		    visit(expression:LeafExpression):void
+		}
+	}
+
+	IExpression - IVisitor
+
+}
+
+package requesthandler {
+	class RequestHandler extends Thread {
+		-Socket client
+		--
+		+RequestHandler(client:Socket)
+		+run():void
+		-getRequest():Request
+		-sendResponse(response:Response):void
+	}
+
+	class Request {
+    	+id:long
+    	+event:String
+    }
+
+    class Response {
+        +isSuccessful:boolean
+        +result:String
+    }
+
+    RequestHandler -- Request
+    RequestHandler -- Response
+}
+
+package server {
+	class Server {
+		-states:Map<Long, State>
+    	-history:ArrayList<IExpression>
+    	+main(args:String[]):void
+    	+getState(index:long):State
+    	+updateState(index:long, state:State):void
+    	+addToHistory(expression:IExpression):void
+    	+getHistory():List<IExpression>
+    }
+}
+
+package state {
+	class State {
+     		+isErrorState:boolean
+         	~expression:Expression
+     		--
+         	+State(expression:Expression)
+         	+handle(event:String):State
+         	+getText():String
+     	}
+	class StartState extends State {
+        +State(expression:Expression)
+        +handle(event:String):State
+        +getText():String
+    }
+	class GettingFirstOperand extends State {
+        +State(expression:Expression)
+        +handle(event:String):State
+        +getText():String
+    }
+	class ErrorGettingFirstOperand extends State {
+        +State(expression:Expression)
+        +handle(event:String):State
+        +getText():String
+    }
+	class WaitingForTheNextOperand extends State {
+        +State(expression:Expression)
+        +handle(event:String):State
+        +getText():String
+    }
+	class ErrorWaitingForTheNextOperand extends State {
+        +State(expression:Expression)
+        +handle(event:String):State
+        +getText():String
+    }
+	class GettingSecondOperand extends State {
+        +State(expression:Expression)
+        +handle(event:String):State
+        +getText():String
+    }
+	class Calculate extends State {
+	    +State(expression:Expression)
+	    +handle(event:String):State
+	    +getText():String
+	}
+}
+
+Server -- IExpression
+Server -- State
+Server -- RequestHandler
+RequestHandler -- State
+State - Parser
+
+@enduml

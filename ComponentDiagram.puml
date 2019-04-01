@@ -1,0 +1,36 @@
+@startuml
+
+skinparam componentStyle uml2
+skinparam component {
+	BackgroundColor Azure
+	ArrowColor RoyalBlue
+	BorderColor DeepSkyBlue
+}
+skinparam interface {
+	componentStyle uml2
+	BackgroundColor Aqua
+	BorderColor DeepSkyBlue
+}
+
+package "server" {
+	component "Server"
+
+	interface " " as Port1
+	Server -- Port1
+	Port1 --> server
+
+}
+
+package client {
+interface " " as Port2
+[Client Application] --( Port2
+Port2 --> client
+}
+
+interface "Socket" as Calculate
+
+server #--> Calculate
+client #--( Calculate
+
+
+@enduml

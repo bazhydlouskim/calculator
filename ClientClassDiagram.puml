@@ -1,0 +1,50 @@
+@startuml
+
+skinparam class {
+	BackgroundColor Azure
+	ArrowColor RoyalBlue
+	BorderColor DeepSkyBlue
+}
+hide empty members
+
+class Calculator {
+	+main(args:String[]):void
+	+start(primaryStage:Stage):void
+}
+
+package client {
+	class CalculatorController {
+		-label:Label
+		-client:Client
+		--
+		+initialize():void
+		..
+		-handleButtonAction(event:ActionEvent):void
+		-processResult(result:Response):void
+		-showError(prompt:String):void
+	}
+
+	class Client {
+		-id:long
+		--
+		+Client()
+		..
+		+sendEvent(event:String):Response
+	}
+
+	class Request {
+	    +id:long
+	    +event:String
+	}
+
+	class Response {
+	    +isSuccessful:boolean
+	    +result:String
+	}
+
+	CalculatorController --* Client
+	Client -- Request
+	Client -- Response
+}
+
+@enduml
